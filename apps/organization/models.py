@@ -46,6 +46,10 @@ class CourseOrg(models.Model):
         verbose_name = u"课程机构"
         verbose_name_plural = verbose_name
 
+    def get_teacher_nums(self):
+        #获取机构的教师数
+        return self.teacher_set.all().count()
+
     def __str__(self):
         return self.name
 
@@ -67,6 +71,7 @@ class Teacher(models.Model):
     upload_to="teacher/%Y/%m",
     verbose_name="头像",
     max_length=100)
+    teacher_age = models.IntegerField('年龄',default=25)
 
     class Meta:
         verbose_name = u"教师"

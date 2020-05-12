@@ -1,19 +1,28 @@
 from django.shortcuts import render
 
 from django.views.generic.base import View
-from .models import CourseOrg,CityDict
-from organization.models import UserFavorite
+from .models import CourseOrg,CityDict,Teacher
 from pure_pagination import Paginator, EmptyPage, PageNotAnInteger
 
 from django.http import HttpResponse
 from .forms import UserAskForm
+from operation.models import UserFavorite
+from course.models import Course
 from django.contrib.auth import authenticate
+from django.db.models import Q
+
 # Create your views here.
 class OrgView(View):
     '''课程机构'''
     def get(self,request):
         # 所有课程机构
         all_orgs = CourseOrg.objects.all()
+        # 机构搜索功能
+        search_keywords = request.GET.get('keywords', '')
+        if search_keywords:
+            # 在name字段进行操作,做like语句的操作。i代表不区分大小写
+            # or操作使用Q
+            all_orgs = all_orgs.filter(Q(name__icontains=search_keywords) | Q(desc__icontains=search_keywords))
         # 热门课程机构排名
         hot_orgs = all_orgs.order_by('-click_nums')[:3]
         # 类别筛选
@@ -21,7 +30,7 @@ class OrgView(View):
         if category:
             all_orgs = all_orgs.filter(category=category)
         # 学习人数和课程数筛选
-        sort = request.GET.get('sort', "")
+        sort = request.GET.get('sort', '')
         if sort:
             if sort == "students":
                 all_orgs = all_orgs.order_by("-students")
@@ -54,6 +63,7 @@ class OrgView(View):
             'city_id':city_id,
             'hot_orgs':hot_orgs,
             'sort':sort,
+            "category": category,
         })
 
 
@@ -187,3 +197,63 @@ class AddFavView(View):
                 return HttpResponse('{"status":"success", "msg":"已收藏"}', content_type='application/json')
             else:
                 return HttpResponse('{"status":"fail", "msg":"收藏出错"}', content_type='application/json')
+
+
+# 讲师列表
+class TeacherListView(View):
+    def get(self, request):
+        all_teachers = Teacher.objects.all()
+        # 总共有多少老师使用count进行统计
+        teacher_nums = all_teachers.count()
+        # 搜索功能
+        search_keywords = request.GET.get('keywords', '')
+        if search_keywords:
+            # 在name字段进行操作,做like语句的操作。i代表不区分大小写
+            # or操作使用Q
+            all_teachers = all_teachers.filter(name__icontains=search_keywords)
+        # 人气排序
+        sort = request.GET.get('sort','')
+        if sort:
+            if sort == 'hot':
+                all_teachers = all_teachers.order_by('-click_nums')
+        
+        #讲师排行榜
+        sorted_teacher = Teacher.objects.all().order_by('-click_nums')[:3]
+
+        # 进行分页
+        try:
+            page = request.GET.get('page', 1)
+        except PageNotAnInteger:
+            page = 1
+        p = Paginator(all_teachers, 1, request=request)
+        teachers = p.page(page)
+        return render(request, "teachers-list.html", {
+            "all_teachers": teachers,
+            "teacher_nums": teacher_nums,
+            'sorted_teacher':sorted_teacher,
+            'sort':sort,
+        })
+
+#讲师详情
+class TeacherDetailView(View):
+    def get(self,request,teacher_id):
+        teacher = Teacher.objects.get(id=int(teacher_id))
+        all_course = Course.objects.filter(teacher=teacher)
+        # 教师收藏和机构收藏
+        has_teacher_faved = False
+        if UserFavorite.objects.filter(user=request.user, fav_type=3, fav_id=teacher.id):
+            has_teacher_faved = True
+
+        has_org_faved = False
+        if UserFavorite.objects.filter(user=request.user, fav_type=2, fav_id=teacher.org.id):
+            has_org_faved = True
+        
+        # 讲师排行榜
+        sorted_teacher = Teacher.objects.all().order_by('-click_nums')[:3]
+        return render(request,'teacher-detail.html',{
+            'teacher':teacher,
+            'all_course':all_course,
+            'sorted_teacher':sorted_teacher,
+            'has_teacher_faved':has_teacher_faved,
+            'has_org_faved':has_org_faved,
+        })
