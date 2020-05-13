@@ -41,6 +41,7 @@ class CourseOrg(models.Model):
     # 可以让我们通过机构找到城市
     city = models.ForeignKey(CityDict, verbose_name=u"所在城市", on_delete=models.CASCADE)
     add_time = models.DateTimeField(default=datetime.now, verbose_name=u"添加时间")
+    tag = models.CharField('机构标签',max_length=10,default='全国知名')
 
     class Meta:
         verbose_name = u"课程机构"
@@ -76,3 +77,6 @@ class Teacher(models.Model):
     class Meta:
         verbose_name = u"教师"
         verbose_name_plural = verbose_name
+
+    def get_course_nums(self):
+        return self.course_set.all().count()

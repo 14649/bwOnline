@@ -16,8 +16,10 @@ AUTH_USER_MODEL = 'users.UserProfile'
 AUTHENTICATION_BACKENDS = (
     'users.views.CustomBackend',
 )
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
+# #静态文件
+# STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 
 # Application definition
 
@@ -32,6 +34,7 @@ INSTALLED_APPS = [
     'crispy_forms',
     'reversion',
     'captcha',
+    'DjangoUeditor',
     'pure_pagination',
     'users',
     'course',
@@ -132,9 +135,11 @@ STATICFILES_DIRS = (
 MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR,'media')   #指定根目录
 
+# 发送邮箱
 EMAIL_HOST = "smtp.qq.com"
 EMAIL_PORT = 25
 EMAIL_HOST_USER = "1464953387@qq.com"
 EMAIL_HOST_PASSWORD = ""
 EMAIL_USE_TLS = True
 EMAIL_FROM = "1464953387@qq.com"
+
