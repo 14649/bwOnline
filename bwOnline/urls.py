@@ -5,12 +5,12 @@ from users.views import LoginView,RegisterView,ActiveUserView,ForgetPwdView,Rese
 from organization.views import OrgView
 from django.views.static import serve
 from bwOnline.settings import MEDIA_ROOT
-from users.views import LogoutView
+from users.views import LogoutView,IndexView
 import xadmin
 
 urlpatterns = [
     path('xadmin/', xadmin.site.urls),
-    path('', TemplateView.as_view(template_name='index.html'),name='index'),
+    path('', IndexView.as_view(),name='index'),
     path('login/',LoginView.as_view(),name = 'login'),
     path('register/',RegisterView.as_view(),name = 'register'),
     path('captcha/',include('captcha.urls')),

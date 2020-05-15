@@ -1,5 +1,8 @@
+{#templates/org-detail-homepage.html#}
+
 {% extends 'org_base.html' %}
-<title>{% block title %}机构首页--北网{% endblock %}</title>
+
+<title>{% block title %}机构首页--{{ course_org.name }}{% endblock %}</title>
 {% block page_path %}机构首页{% endblock %}
 
  {% block right_form %}

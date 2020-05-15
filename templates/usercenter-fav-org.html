@@ -8,7 +8,7 @@
         <div class="wp">
             <ul  class="crumbs">
                 <li><a href="{% url 'index' %}">首页</a>></li>
-                <li><a href="/user/home/">个人中心</a>></li>
+                <li><a href="{% url 'users:user_info' %}">个人中心</a>></li>
                 <li>我的收藏</li>
             </ul>
         </div>
@@ -26,9 +26,9 @@
             <div class="personal_des permessage">
                 <div class="head">
                     <ul class="tab_header messagehead">
-                        <li class="active"><a href="usercenter-fav-course.html">课程机构</a> </li>
-                        <li><a href="usercenter-fav-teacher.html">授课教师 </a></li>
-                        <li><a href="usercenter-fav-course.html">公开课程</a></li>
+                        <li class="active"><a href="{% url 'users:myfav_org' %}">课程机构</a> </li>
+                        <li ><a href="{% url 'users:myfav_teacher' %}">授课教师 </a></li>
+                        <li><a href="{% url 'users:myfav_course' %}">公开课程</a></li>
                     </ul>
                 </div>
                 <div class="messagelist">
@@ -51,7 +51,7 @@
 
                                 </div>
                                 <span class="c8 clear">{{ org.address }}</span>
-                                <div class="delete jsDeleteFav_org" data-favid="{{org.id}}"></div>
+                                <div class="delete jsDeleteFav_org" data-favid="{{ org.id }}"></div>
                             </dd>
                         </dl>
                     </div>
@@ -60,3 +60,23 @@
             </div>
         </div>
 {% endblock %}
+
+
+{% for user_course in user_courses %}
+                    <div class="module1_5 box">
+                            <a href="{% url 'course:course_detail' user_course.course.id %}">
+                                <img width="214" height="190" class="scrollLoading" src="{{ MEDIA_URL }}{{ user_course.course.image }}"/>
+                            </a>
+                            <div class="des">
+                                <a href="course-detail.html"><h2>{{ user_course.course.name }}</h2></a>
+                                <span class="fl">课时：<i class="key">{{ user_course.course.learn_times }}</i></span>
+                                <span class="fr">学习人数：{{ user_course.course.students }}</span>
+                            </div>
+                            <div class="bottom">
+                                <span class="fl">{{ user_course.course.course_org.name }}</span>
+                                <span class="star fr  notlogin" data-favid="15">{{ user_course.course.fav_nums }}</span>
+                            </div>
+                        </div>
+                    {% endfor %}
+
+
